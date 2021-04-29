@@ -1,0 +1,124 @@
+<!-- Author: Jung Won Lee -->
+<html>
+
+<head>
+<style>
+table, th, td {
+  border: 1px solid black;
+  border-collapse: collapse;
+}
+th, td {
+  padding: 15px;
+}
+</style>
+
+<script id="vertex-shader" type="x-shader/x-vertex">
+
+attribute  vec4 vPosition;
+attribute  vec4 vColor;
+attribute  vec2 vTexCoord;
+attribute  vec2 vTexCoord2;
+attribute vec4 vNormal;
+
+uniform vec4 ambientProduct, diffuseProduct, specularProduct;
+uniform vec4 lightPosition;
+uniform float shininess;
+uniform mat4 modelViewMatrix;
+uniform mat4 projectionMatrix;
+uniform vec4 color;
+uniform int groundFlag;
+
+varying vec4 fcolor;
+varying vec2 fTexCoord;
+varying vec2 fTexCoord2;
+
+
+void main() 
+{
+
+      //compute lighting in eye coordinates
+    vec3 pos = (modelViewMatrix * vPosition).xyz;
+    // input light has been defined in eye coords in js
+    vec3 light = lightPosition.xyz;
+    vec3 L = normalize( light - pos );
+
+    // eye coordinates assumes eye at origin
+    vec3 eyePoint = vec3(0.0, 0.0, 0.0);
+    vec3 E = normalize( eyePoint - pos );
+
+    // halfway vector
+    vec3 H = normalize( L + E );
+    
+    // Transform vertex normal into eye coordinates
+    vec3 N = normalize( (modelViewMatrix*vNormal).xyz);
+
+    // Compute terms in the illumination equation
+    vec4 ambient = ambientProduct;
+
+    float Kd = max( dot(L, N), 0.0 );
+    vec4  diffuse = Kd*diffuseProduct;
+
+    float Ks = pow( max(dot(N, H), 0.0), shininess );
+    vec4  specular = Ks * specularProduct;
+    
+    if( dot(L, N) < 0.0 ) {
+    specular = vec4(0.0, 0.0, 0.0, 1.0);
+    }
+    
+    if(groundFlag == 0) {fcolor = vColor+ ambient + diffuse +specular; fTexCoord = vTexCoord;}
+    if(groundFlag == 1) {fcolor = color+ ambient + diffuse +specular; fTexCoord2 = vTexCoord2;}
+    gl_Position = projectionMatrix * modelViewMatrix *vPosition;
+} 
+</script>
+
+<script id="fragment-shader" type="x-shader/x-fragment">
+
+precision mediump float;
+varying vec4 fcolor;
+varying  vec2 fTexCoord;
+varying  vec2 fTexCoord2;
+
+uniform sampler2D Tex1;
+
+uniform int fgroundFlag;
+
+void main()
+{
+    if(fgroundFlag == 0) gl_FragColor = fcolor*(texture2D(Tex1, fTexCoord));
+    if(fgroundFlag == 1) gl_FragColor = fcolor*(texture2D(Tex1, fTexCoord2));
+
+}
+</script>
+
+
+
+<script type="text/javascript" src="../Common/webgl-utils.js"></script>
+<script type="text/javascript" src="../Common/InitShaders.js"></script>
+<script type="text/javascript" src="../Common/MV.js"></script>
+<script type="text/javascript" src="Lee_hw4.js"></script>
+
+</head>
+<body style="font-family:Georgia;">
+ 
+ 
+
+ <center><h1> CSE 470 HW#4: Meet My Avatar</h1>
+ <strong>Author: </strong>JUNG WON LEE
+ &nbsp&nbsp&nbsp&nbsp&nbsp&nbsp
+ <strong>Date: </strong>April 23 2021</br>
+ <strong>Program Description:</strong>  This program shows 3D avatar on a planar ground surface. The avatar and the plane are texture mapped. The avatar will move around circle until the animate on/off toggle is selected. If you press "Stop Animation" button, the avatar will freeze. If you press "Start Animation" button, the avatar will start moving around.</br>
+ <strong>Resources: </strong>Prof. Angel's codes. "figure", "shadedsphere1", and "textureCubev4" from the demo codes.</br>
+ </br> </br>
+ <center><canvas id="gl-canvas" width="700" height="700" style="border:solid 2px #000000">
+    Oops ... your browser doesn't support the HTML5 canvas element
+    </canvas>
+</br>
+</br>
+<button id = "ButtonOFF">Stop Animation</button>
+<button id = "ButtonON">Start Animation</button>
+</br>
+</br>
+<div>
+</div>
+</body>
+</html>
