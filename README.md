@@ -4,7 +4,7 @@ Texture applied 3D Avatar "Cursed Dog" based on webGL program
 ## Overview
 This is a webGL program that animates 3D avatar on a planar ground surface. The avatar is texture mapped. The avatar will move-about and the movement is controlled by the hierarchical model. . The avatar will move around circle until the animate on/off toggle is selected.
 
-<img src="https://i.ibb.co/p2Mjy21/ezgif-2-6f710979e595.gif"/>
+<img src="./curseddog_example.gif"/>
 
 ## The Hierarchy of the Avatar
 
